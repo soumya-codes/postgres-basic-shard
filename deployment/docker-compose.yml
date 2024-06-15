@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  postgres1:
+    image: postgres:latest
+    restart: always
+    environment:
+      POSTGRES_USER: test_user
+      POSTGRES_PASSWORD: test_password
+      POSTGRES_DB: shard0
+    volumes:
+      - postgres1_data:/var/lib/postgresql/data
+      - ../testdata/db/shard0/heartbeat.csv:/var/lib/data/init/heartbeat.csv
+      - ./db/schema/0001-create_and_populate_tables.sh:/docker-entrypoint-initdb.d/0001-create_and_populate_tables.sh
+    ports:
+      - "5432:5432"
+    networks:
+      - postgres_network
+
+  postgres2:
+    image: postgres:latest
+    restart: always
+    environment:
+      POSTGRES_USER: test_user
+      POSTGRES_PASSWORD: test_password
+      POSTGRES_DB: shard1
+    volumes:
+      - postgres2_data:/var/lib/postgresql/data
+      - ../testdata/db/shard1/heartbeat.csv:/var/lib/data/init/heartbeat.csv
+      - ./db/schema/0001-create_and_populate_tables.sh:/docker-entrypoint-initdb.d/0001-create_and_populate_tables.sh
+    ports:
+      - "5433:5432"
+    networks:
+      - postgres_network
+
+volumes:
+  postgres1_data:
+  postgres2_data:
+
+networks:
+  postgres_network:
